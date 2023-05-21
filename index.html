@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Brick Breaker Game</title>
+  <style>
+    /* CSS code */
+
+    /* Define game container */
+    #game {
+      position: relative;
+      width: 480px;
+      height: 600px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    /* Define paddle */
+    #paddle {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 10px;
+      background-color: #000000;
+    }
+
+    /* Define ball */
+    #ball {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      background-color: #FF0000;
+      border-radius: 50%;
+    }
+
+    /* Define bricks */
+    .brick {
+      width: 70px;
+      height: 20px;
+      background-color: #00FF00;
+      border: 1px solid #000000;
+      margin: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="paddle"></div>
+    <div id="ball"></div>
+    <div class="brick"></div>
+    <div class="brick"></div>
+    <div class="brick"></div>
+    <!-- Add more bricks here as needed -->
+  </div>
+
+  <script>
+    // JavaScript code
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const gameContainer = document.getElementById("game");
+      const paddle = document.getElementById("paddle");
+      const ball = document.getElementById("ball");
+      const bricks = document.querySelectorAll(".brick");
+
+      let paddleX = gameContainer.offsetWidth / 2 - paddle.offsetWidth / 2;
+      let ballX = gameContainer.offsetWidth / 2 - ball.offsetWidth / 2;
+      let ballY = gameContainer.offsetHeight - paddle.offsetHeight - ball.offsetHeight;
+      let ballSpeedX = 2;
+      let ballSpeedY = -2;
+
+      function movePaddle(event) {
+        paddleX = event.clientX - gameContainer.getBoundingClientRect().left - paddle.offsetWidth / 2;
+        if (paddleX < 0) {
+          paddleX = 0;
+        }
+        if (paddleX > gameContainer.offsetWidth - paddle.offsetWidth) {
+          paddleX = gameContainer.offsetWidth - paddle.offsetWidth;
+        }
+        paddle.style.left = paddleX + "px";
+      }
+
+      function moveBall() {
+        ballX += ballSpeedX;
+        ballY += ballSpeedY;
+        ball.style.left = ballX + "px";
+        ball.style.top = ballY + "px";
+
+        if (ballX <= 0 || ballX >= gameContainer.offsetWidth - ball.offsetWidth) {
+          ballSpeedX *= -1;
+        }
+
+        if (ballY <= 0 || ballY >= gameContainer.offsetHeight - ball.offsetHeight) {
+          ballSpeedY *= -1;
+        }
+
+        if (
+          ballX + ball.offsetWidth >= paddleX &&
+          ballX <= paddleX + paddle.offsetWidth &&
+          ballY + ball.offsetHeight >= gameContainer.offsetHeight - paddle.offsetHeight
+        ) {
+          ballSpeedY *= -1;
+        }
+      }
+
+      function checkCollision() {
+        bricks.forEach((brick, index) => {
+          const brickRect = brick.getBoundingClientRect();
+          if (
+            ballX + ball.offsetWidth > brickRect.left &&
+            ballX < brickRect.left + brick.offsetWidth &&
+            ballY + ball.offsetHeight > brickRect.top &&
+            ballY < brickRect.top + brick.offsetHeight
+          ) {
+            bricks[index].remove();
+            ballSpeedY *= -1;
+          }
+        });
+      }
+
+      document.addEventListener("mousemove", movePaddle);
+
+      function gameLoop() {
+        moveBall();
+        checkCollision();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Start the game loop
+      gameLoop();
+    });
+  </script>
+</body>
+</html>
